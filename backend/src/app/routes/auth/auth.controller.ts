@@ -5,7 +5,7 @@ const router = Router();
 
 //register
 router.post(
-  'register',
+  '/register',
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       console.log(req.body);
@@ -18,8 +18,8 @@ router.post(
 );
 
 //login
-router.post(
-  'login',
+router.get(
+  '/login',
   async (req: Request, res: Response, next: NextFunction) => {
     res.json('Basket');
   }
