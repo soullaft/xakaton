@@ -4,10 +4,7 @@ import HttpException from '../../models/http-exception.model';
 import { Post } from './post.model';
 import { CreatePostInput } from './create-post.model';
 
-
-export const createPost = async (
-  input: CreatePostInput,
-): Promise<Post> => {
+export const createPost = async (input: CreatePostInput): Promise<Post> => {
   const { title, description, userId } = input;
 
   if (!title) {
@@ -18,6 +15,9 @@ export const createPost = async (
     throw new HttpException(422, { errors: { body: ["can't be blank"] } });
   }
 
+  if (userId === null || userId <= 0) {
+    throw new HttpException(422, { errors: { body: ['incorrect user id'] } });
+  }
 
   const user = await prisma.user.findUnique({
     where: {

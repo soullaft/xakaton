@@ -5,7 +5,7 @@ const router = Router();
 
 //register
 router.post(
-  'post/create',
+  '/post/create',
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       console.log(req.body);
@@ -16,6 +16,5 @@ router.post(
     }
   }
 );
-
 
 export default router;
