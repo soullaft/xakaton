@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response, Router } from 'express';
-import { createUser } from './auth.service';
+import { createUser, login } from './auth.service';
 
 const router = Router();
 
@@ -18,10 +18,15 @@ router.post(
 );
 
 //login
-router.get(
+router.post(
   '/login',
   async (req: Request, res: Response, next: NextFunction) => {
-    res.json('Basket');
+    try {
+      const user = await login(req.body);
+      res.json({ user });
+    } catch (error) {
+      next(error);
+    }
   }
 );
 
