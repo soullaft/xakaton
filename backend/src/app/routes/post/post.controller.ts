@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response, Router } from 'express';
-import { createPost } from './post.service';
+import { createPost, getPost } from './post.service';
 
 const router = Router();
 
@@ -10,6 +10,19 @@ router.post(
     try {
       console.log(req.body);
       const post = await createPost({ ...req.body });
+      res.status(201).json(post);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.get(
+  '/post/:id',
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      console.log(req.body);
+      const post = await getPost(Number.parseInt(req.params.id));
       res.status(201).json(post);
     } catch (error) {
       next(error);

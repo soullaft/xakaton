@@ -39,3 +39,19 @@ export const createPost = async (input: CreatePostInput): Promise<Post> => {
 
   return post;
 };
+
+export const getPost = async (input: number): Promise<Post | string> => {
+  const id = input;
+
+  if (id === null || id <= 0) {
+    throw new HttpException(422, { errors: { body: ['incorrect post id'] } });
+  }
+
+  const post = await prisma.post.findUnique({
+    where: {
+      id: id,
+    },
+  });
+
+  return post ?? 'Пост не найден';
+};
