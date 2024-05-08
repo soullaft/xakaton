@@ -6,16 +6,7 @@ import { User } from './user.model';
 import { RegisterInput } from './register-input.model';
 import { RegisteredUser } from './registered-user.model';
 
-const checkUserUniqueness = async (email: string, username: string) => {
-  const existingUserByEmail = await prisma.user.findUnique({
-    where: {
-      email,
-    },
-    select: {
-      id: true,
-    },
-  });
-
+const checkUserUniqueness = async (username: string) => {
   const existingUserByUsername = await prisma.user.findUnique({
     where: {
       username,
@@ -25,10 +16,9 @@ const checkUserUniqueness = async (email: string, username: string) => {
     },
   });
 
-  if (existingUserByEmail || existingUserByUsername) {
+  if (existingUserByUsername) {
     throw new HttpException(422, {
       errors: {
-        ...(existingUserByEmail ? { email: ['has already been taken'] } : {}),
         ...(existingUserByUsername
           ? { username: ['has already been taken'] }
           : {}),
@@ -38,11 +28,11 @@ const checkUserUniqueness = async (email: string, username: string) => {
 };
 
 export const login = async (userPayload: any) => {
-  const email = userPayload.email?.trim();
+  const username = userPayload.username?.trim();
   const password = userPayload.password?.trim();
 
-  if (!email) {
-    throw new HttpException(422, { errors: { email: ["can't be blank"] } });
+  if (!username) {
+    throw new HttpException(422, { errors: { username: ["can't be blank"] } });
   }
 
   if (!password) {
@@ -51,11 +41,10 @@ export const login = async (userPayload: any) => {
 
   const user = await prisma.user.findUnique({
     where: {
-      email,
+      username,
     },
     select: {
       id: true,
-      email: true,
       username: true,
       password: true,
     },
@@ -65,7 +54,6 @@ export const login = async (userPayload: any) => {
     const match = await bcrypt.compare(password, user.password);
     if (match) {
       return {
-        email: user.email,
         username: user.username,
         token: generateToken(user.id),
       };
@@ -86,7 +74,6 @@ export const getCurrentUser = async (id: number) => {
     },
     select: {
       id: true,
-      email: true,
       username: true,
     },
   })) as User;
@@ -100,24 +87,9 @@ export const getCurrentUser = async (id: number) => {
 export const createUser = async (
   input: RegisterInput
 ): Promise<RegisteredUser> => {
-  const email = input.email?.trim();
   const username = input.username?.trim();
   const password = input.password?.trim();
-  const firstname = input.firstname?.trim() ?? '';
-  const lastname = input.lastname?.trim() ?? '';
-  const middlename = input.middlename?.trim() ?? '';
-  const phone = input.phone?.trim() ?? '';
-  const sex = input.sex ?? false;
-  const creditcard = input.creditcard?.trim() ?? '';
-  const birthdate = input.birthdate ?? new Date();
-  const smspermission = input.smspermission ?? false;
-  const emailpermission = input.emailpermission ?? false;
-
-  console.log(input);
-
-  if (!email) {
-    throw new HttpException(422, { errors: { email: ["can't be blank"] } });
-  }
+  const role = 1;
 
   if (!username) {
     throw new HttpException(422, { errors: { username: ["can't be blank"] } });
@@ -127,28 +99,18 @@ export const createUser = async (
     throw new HttpException(422, { errors: { password: ["can't be blank"] } });
   }
 
-  await checkUserUniqueness(email, username);
+  await checkUserUniqueness(username);
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const user = await prisma.user.create({
     data: {
       username,
-      email,
       password: hashedPassword,
-      firstname,
-      lastname,
-      middlename,
-      birthdate,
-      phone,
-      creditcard,
-      sex,
-      smspermission,
-      emailpermission,
+      roleId: 1,
     },
     select: {
       id: true,
-      email: true,
       username: true,
     },
   });
