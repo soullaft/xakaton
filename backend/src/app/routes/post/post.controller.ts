@@ -1,11 +1,13 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { createPost, getPost, removePostIfAuthor } from './post.service';
+import auth from '../auth/auth';
 
 const router = Router();
 
 //register
 router.post(
   '/post/create',
+  auth.required,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       console.log(req.body);
