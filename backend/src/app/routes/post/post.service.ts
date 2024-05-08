@@ -55,3 +55,25 @@ export const getPost = async (input: number): Promise<Post | string> => {
 
   return post ?? 'Пост не найден';
 };
+
+export const removePostIfAuthor = async (postId: number, userId: number): Promise<void> => {
+  if (!postId || postId <= 0) {
+    throw new HttpException(422, { errors: { postId: ['Incorrect post ID'] } });
+  }
+
+  const post = await prisma.post.findUnique({
+    where: {
+      id: postId,
+    }
+  });
+
+  if (!post || post.userId !== userId) {
+    throw new HttpException(403, { errors: { authorization: ['You are not authorized to delete this post'] } });
+  }
+
+  await prisma.post.delete({
+    where: {
+      id: postId,
+    },
+  });
+};

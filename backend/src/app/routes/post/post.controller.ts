@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response, Router } from 'express';
-import { createPost, getPost } from './post.service';
+import { createPost, getPost, removePostIfAuthor } from './post.service';
 
 const router = Router();
 
@@ -24,6 +24,22 @@ router.get(
       console.log(req.body);
       const post = await getPost(Number.parseInt(req.params.id));
       res.status(201).json(post);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.delete(
+  '/post/remove-if-author',
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const postId = parseInt(req.params.postId);
+      const userId = parseInt(req.user.id); 
+
+      await removePostIfAuthor(postId, userId);
+
+      res.status(204).end();
     } catch (error) {
       next(error);
     }
